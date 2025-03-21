@@ -123,7 +123,7 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>Mijn Aandelen Screener</h1>
+        <h1>Mijn Aandelen Screener - NIEUW DESIGN!</h1>
       </header>
 
       <div className="filter-grid">
