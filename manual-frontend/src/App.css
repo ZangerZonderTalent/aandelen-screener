@@ -1,46 +1,46 @@
 /* Algemene stijlen */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: Arial, sans-serif;
   line-height: 1.6;
   color: #333;
   background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
 }
 
 .app-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  font-family: Arial, sans-serif;
 }
 
 /* Header */
 .app-header {
   text-align: center;
   margin-bottom: 30px;
-  color: #2c3e50;
 }
 
 .app-header h1 {
   color: #2c3e50;
-  font-size: 2.5rem;
+  font-size: 2rem;
 }
 
 /* Filter secties */
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-bottom: 30px;
   background: #f8f9fa;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .filter-section {
@@ -53,18 +53,20 @@ body {
   color: #2c3e50;
   margin-bottom: 15px;
   font-size: 1.2em;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 5px;
 }
 
 .filter-row {
   margin-bottom: 15px;
   display: flex;
   align-items: center;
-  gap: 10px;
 }
 
 .filter-row label {
   min-width: 140px;
   color: #34495e;
+  font-weight: bold;
 }
 
 .filter-input,
@@ -73,14 +75,6 @@ body {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
-}
-
-.filter-input:focus,
-.filter-select:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
 }
 
 /* Actie knoppen */
@@ -144,7 +138,6 @@ body {
 .results-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
 }
 
 .results-table th {
@@ -153,22 +146,16 @@ body {
   text-align: left;
   border-bottom: 2px solid #dee2e6;
   color: #2c3e50;
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .results-table th.sortable {
   cursor: pointer;
-  user-select: none;
-}
-
-.results-table th.sortable:hover {
-  background-color: #e9ecef;
 }
 
 .results-table td {
   padding: 12px;
   border-bottom: 1px solid #dee2e6;
-  color: #34495e;
 }
 
 .results-table tr:hover {
@@ -198,46 +185,10 @@ body {
   border-radius: 4px;
   cursor: pointer;
   color: #2c3e50;
-  transition: all 0.3s;
-}
-
-.pagination button:hover:not(:disabled) {
-  background-color: #e9ecef;
-  border-color: #cbd3da;
 }
 
 .pagination button:disabled {
   background-color: #f8f9fa;
   color: #adb5bd;
   cursor: not-allowed;
-}
-
-.pagination span {
-  color: #2c3e50;
-  font-size: 14px;
-}
-
-/* Responsieve aanpassingen */
-@media (max-width: 768px) {
-  .filter-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .filter-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .filter-row label {
-    margin-bottom: 5px;
-  }
-  
-  .results-table {
-    font-size: 14px;
-  }
-  
-  .results-table th,
-  .results-table td {
-    padding: 8px;
-  }
 } 
