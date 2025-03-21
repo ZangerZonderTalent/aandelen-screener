@@ -121,193 +121,111 @@ function App() {
   }, []);
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>Mijn Aandelen Screener - NIEUW DESIGN!</h1>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <header style={{ textAlign: 'center', marginBottom: '30px' }}>
+        <h1 style={{ color: 'red', fontSize: '36px', backgroundColor: 'yellow', padding: '20px' }}>
+          NIEUWE VERSIE - AANDELEN SCREENER
+        </h1>
       </header>
 
-      <div className="filter-grid">
-        <div className="filter-section">
-          <h2>Basisfilters</h2>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginBottom: '30px' }}>
+        <div style={{ flex: '1', minWidth: '300px', padding: '20px', backgroundColor: 'lightblue', borderRadius: '8px' }}>
+          <h2 style={{ marginBottom: '15px', borderBottom: '2px solid blue' }}>Basisfilters</h2>
           
-          <div className="filter-row">
-            <label>Min. Gem. Volume: </label>
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Min. Gem. Volume: </label>
             <input
               type="number"
               value={volume}
               onChange={(e) => setVolume(e.target.value)}
-              className="filter-input"
+              style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
             />
           </div>
 
-          <div className="filter-row">
-            <label>Max. ATR-ratio (%): </label>
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Max. ATR-ratio (%): </label>
             <input
               type="number"
               value={maxRatr}
               onChange={(e) => setMaxRatr(e.target.value)}
-              className="filter-input"
-            />
-          </div>
-
-          <div className="filter-row">
-            <label>Min. Prijs ($): </label>
-            <input
-              type="number"
-              value={minPrice}
-              onChange={(e) => setMinPrice(Number(e.target.value))}
-              className="filter-input"
-            />
-          </div>
-
-          <div className="filter-row">
-            <label>Max. Prijs ($): </label>
-            <input
-              type="number"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="filter-input"
+              style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
             />
           </div>
         </div>
 
-        <div className="filter-section">
-          <h2>SMA Filters</h2>
+        <div style={{ flex: '1', minWidth: '300px', padding: '20px', backgroundColor: 'lightgreen', borderRadius: '8px' }}>
+          <h2 style={{ marginBottom: '15px', borderBottom: '2px solid green' }}>SMA Filters</h2>
           
-          <div className="filter-row">
-            <label>Trend: </label>
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Trend: </label>
             <select 
               value={trend} 
               onChange={(e) => setTrend(e.target.value)}
-              className="filter-select"
+              style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
             >
               <option value="long">Long (prijs boven SMA)</option>
               <option value="short">Short (prijs onder SMA)</option>
             </select>
           </div>
-
-          <div className="filter-row">
-            <label>Mode: </label>
-            <select 
-              value={mode} 
-              onChange={(e) => setMode(e.target.value)}
-              className="filter-select"
-            >
-              <option value="two_halves">Twee helften</option>
-              <option value="entire_year">Heel jaar</option>
-            </select>
-          </div>
-
-          {mode === "two_halves" ? (
-            <>
-              <div className="filter-row">
-                <label>% Eerste helft: </label>
-                <input
-                  type="number"
-                  value={smaPctFirst}
-                  onChange={(e) => setSmaPctFirst(e.target.value)}
-                  className="filter-input"
-                />
-              </div>
-
-              <div className="filter-row">
-                <label>% Tweede helft: </label>
-                <input
-                  type="number"
-                  value={smaPctSecond}
-                  onChange={(e) => setSmaPctSecond(e.target.value)}
-                  className="filter-input"
-                />
-              </div>
-            </>
-          ) : (
-            <div className="filter-row">
-              <label>% Heel jaar: </label>
-              <input
-                type="number"
-                value={smaPctEntire}
-                onChange={(e) => setSmaPctEntire(e.target.value)}
-                className="filter-input"
-              />
-            </div>
-          )}
         </div>
       </div>
 
-      <div className="action-container">
+      <div style={{ textAlign: 'center', margin: '20px 0' }}>
         <button 
           onClick={fetchStocks} 
-          className="search-button"
+          style={{ 
+            backgroundColor: '#3498db', 
+            color: 'white', 
+            border: 'none', 
+            padding: '12px 24px', 
+            borderRadius: '4px', 
+            cursor: 'pointer', 
+            fontSize: '16px' 
+          }}
           disabled={loading}
         >
-          {loading ? (
-            <span className="loading-spinner"></span>
-          ) : (
-            "Zoeken"
-          )}
+          {loading ? "Bezig met zoeken..." : "ZOEKEN"}
         </button>
       </div>
 
       {error && (
-        <div className="error-message">
+        <div style={{ backgroundColor: '#ffebee', color: '#c62828', padding: '15px', borderRadius: '4px', margin: '20px 0', textAlign: 'center' }}>
           {error}
         </div>
       )}
 
-      <div className="results-container">
+      <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', overflow: 'auto' }}>
         {filteredStocks.length > 0 ? (
-          <>
-            <table className="results-table">
-              <thead>
-                <tr>
-                  <th onClick={() => handleSort('symbol')} className="sortable">
-                    Symbol {sortField === 'symbol' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('volume')} className="sortable">
-                    Gem. Volume {sortField === 'volume' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('atr')} className="sortable">
-                    ATR Ratio {sortField === 'atr' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('price')} className="sortable">
-                    Laatste Prijs {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('date')} className="sortable">
-                    Laatste Update {sortField === 'date' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </th>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ backgroundColor: '#f8f9fa', padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6', fontWeight: 'bold' }}>
+                  Symbol
+                </th>
+                <th style={{ backgroundColor: '#f8f9fa', padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6', fontWeight: 'bold' }}>
+                  Gem. Volume
+                </th>
+                <th style={{ backgroundColor: '#f8f9fa', padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6', fontWeight: 'bold' }}>
+                  ATR Ratio
+                </th>
+                <th style={{ backgroundColor: '#f8f9fa', padding: '12px', textAlign: 'left', borderBottom: '2px solid #dee2e6', fontWeight: 'bold' }}>
+                  Laatste Prijs
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredStocks.map((stock) => (
+                <tr key={stock.symbol}>
+                  <td style={{ padding: '12px', borderBottom: '1px solid #dee2e6' }}>{stock.symbol}</td>
+                  <td style={{ padding: '12px', borderBottom: '1px solid #dee2e6' }}>{stock.avg_1yr_volume.toLocaleString()}</td>
+                  <td style={{ padding: '12px', borderBottom: '1px solid #dee2e6' }}>{stock.atr_ratio.toFixed(2)}%</td>
+                  <td style={{ padding: '12px', borderBottom: '1px solid #dee2e6' }}>${stock.last_price.toFixed(2)}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {currentItems.map((stock) => (
-                  <tr key={stock.symbol}>
-                    <td>{stock.symbol}</td>
-                    <td>{stock.avg_1yr_volume.toLocaleString()}</td>
-                    <td>{stock.atr_ratio.toFixed(2)}%</td>
-                    <td>${stock.last_price.toFixed(2)}</td>
-                    <td>{new Date(stock.last_update).toLocaleDateString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="pagination">
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                Vorige
-              </button>
-              <span>Pagina {currentPage} van {totalPages}</span>
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                Volgende
-              </button>
-            </div>
-          </>
+              ))}
+            </tbody>
+          </table>
         ) : !loading && (
-          <div className="no-results">
+          <div style={{ textAlign: 'center', padding: '40px', color: '#7f8c8d' }}>
             {error ? null : "Geen resultaten gevonden. Pas je filters aan en probeer opnieuw."}
           </div>
         )}
