@@ -1,9 +1,9 @@
-import yfinance as yf
+import os
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from alpha_vantage.timeseries import TimeSeries
 import numpy as np
 import pandas as pd
-import os
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 # Laad environment variabelen
@@ -11,8 +11,7 @@ load_dotenv()
 
 app = FastAPI()
 
-# CORS-instellingen (voor je React-frontend)
-# In productie zul je dit willen beperken tot je frontend domain
+# CORS-instellingen
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 app.add_middleware(
@@ -22,6 +21,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Alpha Vantage API key
+ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+if not ALPHA_VANTAGE_API_KEY:
+    raise ValueError("ALPHA_VANTAGE_API_KEY niet gevonden in environment variables")
+
+# Alpha Vantage client
+ts = TimeSeries(key=ALPHA_VANTAGE_API_KEY, output_format='pandas')
 
 # Voeg meer tickers toe voor een uitgebreidere screener
 default_tickers = ["AAPL", "MSFT", "GOOGL", "TSLA", "AMZN", "META", "NVDA", "NFLX", "PYPL", "ADBE", 
@@ -152,48 +159,43 @@ def read_root():
     return {"status": "online", "message": "Aandelen Screener API is actief"}
 
 @app.get("/screener")
-def screen_stocks(
+async def screen_stocks(
     volume: int = 500000,
     max_ratr: float = 999.0,
-    trend: str = "long",             # "long" of "short"
-    mode: str = "two_halves",        # "two_halves" of "entire_year"
-    sma_pct_first: float = 80.0,     # bv. 80% in eerste helft
-    sma_pct_second: float = 100.0,   # bv. 100% in tweede helft
-    sma_pct_entire: float = 100.0    # bv. 100% voor heel jaar
+    trend: str = "long",
+    mode: str = "two_halves",
+    sma_pct_first: float = 80.0,
+    sma_pct_second: float = 100.0,
+    sma_pct_entire: float = 100.0
 ):
     """
-    Endpoint met meerdere filters:
-    1) volume (gemiddelde) >= 'volume'
-    2) atr_ratio <= 'max_ratr'
-    3) 200-SMA check:
-       - trend="long" => prijs >= 200SMA
-       - trend="short" => prijs <= 200SMA
-       - mode="two_halves" => split in 2 helften, check sma_pct_first & sma_pct_second
-       - mode="entire_year" => check sma_pct_entire over de hele dataset
+    Verbeterde screener endpoint met Alpha Vantage data
     """
+    if not ALPHA_VANTAGE_API_KEY:
+        raise HTTPException(status_code=500, detail="API key niet geconfigureerd")
 
     results = []
+    errors = []
 
     for ticker in demo_tickers:
         try:
-            # Haal 1 jaar data op, daily
-            data = yf.download(ticker, period="1y", interval="1d")
-
-            # MultiIndex flatten
-            if isinstance(data.columns, pd.MultiIndex):
-                data.columns = data.columns.droplevel(1)
-
-            # Als 'Close' mist maar 'Adj Close' is er, rename
-            if 'Close' not in data.columns and 'Adj Close' in data.columns:
-                data['Close'] = data['Adj Close']
-                data.drop(columns='Adj Close', inplace=True)
-
-            # Beperk tot kolommen die we nodig hebben
-            needed_cols = ['Open','High','Low','Close','Volume']
-            existing_cols = [col for col in needed_cols if col in data.columns]
-            data = data[existing_cols]
-
-            if data.empty or 'Close' not in data.columns:
+            # Haal data op via Alpha Vantage
+            data, meta_data = ts.get_daily(symbol=ticker, outputsize='full')
+            
+            # Rename kolommen voor consistentie
+            data = data.rename(columns={
+                '1. open': 'Open',
+                '2. high': 'High',
+                '3. low': 'Low',
+                '4. close': 'Close',
+                '5. volume': 'Volume'
+            })
+            
+            # Laatste jaar selecteren
+            data = data.iloc[:252]  # ~1 handelsjaar
+            
+            if data.empty:
+                errors.append(f"Geen data gevonden voor {ticker}")
                 continue
 
             # Bereken RATR
@@ -205,7 +207,7 @@ def screen_stocks(
                 continue
 
             # RATR-check
-            last_bar = data.iloc[-1]
+            last_bar = data.iloc[0]  # Alpha Vantage data is omgekeerd gesorteerd
             atr_ratio = last_bar.get('atr_ratio', 99999.0)
             if atr_ratio > max_ratr:
                 continue
@@ -230,13 +232,18 @@ def screen_stocks(
                 "avg_1yr_volume": int(avg_vol),
                 "atr_ratio": float(atr_ratio),
                 "last_price": float(last_bar['Close']),
+                "last_update": data.index[0].strftime("%Y-%m-%d")
             })
+
         except Exception as e:
-            # Log de error maar laat de screener doorgaan
-            print(f"Error bij verwerken van {ticker}: {str(e)}")
+            errors.append(f"Error bij {ticker}: {str(e)}")
             continue
 
-    return {"results": results}
+    return {
+        "results": results,
+        "errors": errors if errors else None,
+        "total_found": len(results)
+    }
 
 # Voor lokale ontwikkeling
 if __name__ == "__main__":
